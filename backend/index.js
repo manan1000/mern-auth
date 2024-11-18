@@ -8,7 +8,7 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 app.get("/" , (req,res) =>{
-    res.send("Authentication Backend");
+    res.send("Not Authentication Backend");
 });
 
 app.use(express.json());

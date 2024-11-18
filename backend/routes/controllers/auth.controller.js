@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { User } from "../../models/User.js";
 import { generateVerificationToken } from "../../utils/generateVerificationToken.js";
 import { generateTokenAndSetCookie } from "../../utils/generateTokenAndSetCookie.js";
+import { sendVerificationEmail } from "../../mailtrap/email.js";
 
 
 const signupSchema = z.object({
@@ -29,11 +30,12 @@ export const signup = async (req, res) => {
             password: hashedPassword,
             name: name,
             verificationToken: verificationToken,
-            verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000
+            verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000   // email template says 15 minutes but we are using 24 hours
         });
 
         await user.save();
         generateTokenAndSetCookie(res,user._id);
+        await sendVerificationEmail(user.email , verificationToken);
 
         res.status(201).json({success: true , message: "User created successfully!"});
 
@@ -45,6 +47,9 @@ export const signup = async (req, res) => {
     }
 }
 
+export const verfyEmail = async (req, res) => {
+    res.send("verify email");
+}
 
 export const login = async (req, res) => {
     res.send("login");
