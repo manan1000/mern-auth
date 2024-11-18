@@ -4,8 +4,8 @@ import { signup, login, logout, verfyEmail } from "./controllers/auth.controller
 const router = express.Router();
 
 router.post("/signup", signup);
-router.get("/login", login);
+router.post("/login", login);
 router.get("/logout", logout);
-router.get("/verify-emai", verfyEmail);
+router.post("/verify-email", verfyEmail);
 
 export default router;

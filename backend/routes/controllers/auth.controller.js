@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { User } from "../../models/User.js";
 import { generateVerificationToken } from "../../utils/generateVerificationToken.js";
 import { generateTokenAndSetCookie } from "../../utils/generateTokenAndSetCookie.js";
-import { sendVerificationEmail } from "../../mailtrap/email.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../../mailtrap/email.js";
 
 
 const signupSchema = z.object({
@@ -34,10 +34,10 @@ export const signup = async (req, res) => {
         });
 
         await user.save();
-        generateTokenAndSetCookie(res,user._id);
-        await sendVerificationEmail(user.email , verificationToken);
+        generateTokenAndSetCookie(res, user._id);
+        await sendVerificationEmail(user.email, verificationToken);
 
-        res.status(201).json({success: true , message: "User created successfully!"});
+        res.status(201).json({ success: true, message: "User created successfully!" });
 
 
     } catch (error) {
@@ -48,14 +48,44 @@ export const signup = async (req, res) => {
 }
 
 export const verfyEmail = async (req, res) => {
-    res.send("verify email");
+    const { code } = req.body;
+    try {
+
+        const user = await User.findOne({
+            verificationToken: code,
+            verificationTokenExpiresAt: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            res.status(400).json({ success: false, message: "Invalid or expired verification code!" });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        user.verificationTokenExpiresAt = undefined;
+
+        await user.save();
+        await sendWelcomeEmail(user.email, user.name);
+        res.status(200).json({ success: true, message: "Email verified successfully!" });
+
+    } catch (error) {
+        res.status(400).send({
+            error: error.errors ? error.errors.map(e => e.message) : "An error occurred",
+        });
+    }
 }
 
 export const login = async (req, res) => {
-    res.send("login");
+    const { email,password } = req.body;
+    try {
+        
+    } catch (error) {
+        
+    }
 }
 
 
 export const logout = async (req, res) => {
-    res.send("logout");
+    res.clearCookie("token");
+    res.status(200).json({ success: true, message: "Logged out successfully!" });
 }
