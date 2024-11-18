@@ -13,19 +13,3 @@ export const sender = {
     name: "Mern Auth",
 };
 
-
-// const recipients = [
-//     {
-//         email: "mananfreecash@gmail.com",
-//     }
-// ];
-
-// client
-//     .send({
-//         from: sender,
-//         to: recipients,
-//         subject: "You are awesome!",
-//         text: "Congrats for sending test email with Mailtrap!",
-//         category: "Integration Test",
-//     })
-//     .then(console.log, console.error);
