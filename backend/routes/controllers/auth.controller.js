@@ -79,8 +79,28 @@ export const login = async (req, res) => {
     const { email,password } = req.body;
     try {
         
+        const user = await User.findOne({ email });
+        if(!user){
+            return res.status(404).json({ success: false, message: "User not found!" });
+        }
+
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if(!isValidPassword){
+            return res.status(401).json({ success: false, message: "Invalid credentials!" });
+        }
+
+        generateTokenAndSetCookie(res, user._id);
+        user.lastLogin = Date.now();
+
+        await user.save();
+        res.status(200).json({ success: true, message: "Logged in successfully!" });
+
     } catch (error) {
+        console.error("Login error: ", error);
         
+        res.status(400).send({
+            error: error.errors ? error.errors.map(e => e.message) : "An error occurred",
+        });
     }
 }
 
